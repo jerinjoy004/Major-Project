@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Debug Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #0f0;
+        }
+
+        .log {
+            margin: 10px 0;
+            padding: 10px;
+            background: #000;
+            border-left: 3px solid #0f0;
+        }
+
+        .error {
+            border-left-color: #f00;
+            color: #f00;
+        }
+
+        .success {
+            border-left-color: #0f0;
+            color: #0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Store Page Debug Console</h1>
+    <div id="logs"></div>
+
+    <script type="module">
+        const logContainer = document.getElementById('logs');
+
+        function log(message, type = 'log') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(div);
+            console.log(message);
+        }
+
+        // Override console methods
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = (...args) => {
+            log(args.join(' '), 'log');
+            originalLog.apply(console, args);
+        };
+
+        console.error = (...args) => {
+            log(args.join(' '), 'error');
+            originalError.apply(console, args);
+        };
+
+        console.warn = (...args) => {
+            log(args.join(' '), 'error');
+            originalWarn.apply(console, args);
+        };
+
+        log('Debug console initialized', 'success');
+        log('Navigate to /store to see initialization logs', 'log');
+    </script>
+</body>
+
+</html>

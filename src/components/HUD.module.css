@@ -1,0 +1,115 @@
+.hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.hud>* {
+    pointer-events: auto;
+}
+
+.topLeft {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.userInfo {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.username {
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.logoutBtn {
+    background: #E74C3C;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.logoutBtn:hover {
+    opacity: 0.9;
+}
+
+.controls {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 12px;
+    border-radius: 12px;
+    color: white;
+    font-size: 13px;
+}
+
+.controlHint {
+    margin: 4px 0;
+}
+
+.controlHint kbd {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.topCenter {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.storeTitle {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+    white-space: nowrap;
+}
+
+.bottomCenter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.aiButton {
+    background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.aiButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}

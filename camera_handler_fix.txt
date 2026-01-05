@@ -1,0 +1,22 @@
+    // Simplified camera controls
+    const handleCameraView = useCallback((view: 'aerial' | 'normal' | 'close') => {
+        const engine = gameEngineRef.current;
+        if (!engine) return;
+
+        const camera = engine.getCamera();
+        
+        switch (view) {
+            case 'aerial':
+                camera.setAerialView();
+                addNotification('Switched to Aerial View 🔭', 'info');
+                break;
+            case 'normal':
+                camera.setNormalView();
+                addNotification('Switched to Normal View 👁️', 'info');
+                break;
+            case 'close':
+                camera.setCloseView();
+                addNotification('Switched to Close View 🔍', 'info');
+                break;
+        }
+    }, [addNotification]);
