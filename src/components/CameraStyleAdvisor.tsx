@@ -7,6 +7,14 @@ interface StyleSuggestion {
     reasoning: string;
 }
 
+interface UserPreferences {
+    categories: string[]; // dress, makeup, accessories, etc.
+    occasion?: string; // casual, formal, party, etc.
+    brand?: string;
+    style?: string; // bohemian, classic, modern, etc.
+    priceRange?: string;
+}
+
 export const CameraStyleAdvisor: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -18,6 +26,14 @@ export const CameraStyleAdvisor: React.FC<{ onClose: () => void }> = ({ onClose 
     const [error, setError] = useState<string>('');
     const [availableCameras, setAvailableCameras] = useState<MediaDeviceInfo[]>([]);
     const [selectedCamera, setSelectedCamera] = useState<string>('');
+    const [showPreferences, setShowPreferences] = useState(false);
+    const [userPreferences, setUserPreferences] = useState<UserPreferences>({
+        categories: [],
+        occasion: '',
+        brand: '',
+        style: '',
+        priceRange: ''
+    });
 
     // Get available cameras ONLY when user wants to start camera
     const getCameras = useCallback(async () => {
@@ -122,28 +138,42 @@ export const CameraStyleAdvisor: React.FC<{ onClose: () => void }> = ({ onClose 
         const imageData = canvas.toDataURL('image/jpeg', 0.9);
         setCapturedImage(imageData);
         stopCamera();
-        analyzeImage();
+        setShowPreferences(true); // Show preference selection instead of immediate analysis
     }, [stopCamera]);
 
-    // Dummy AI analysis - generates fashion suggestions
-    const analyzeImage = useCallback(() => {
+
+    // Generate personalized recommendations based on user preferences
+    const analyzeImage = useCallback((prefs: UserPreferences) => {
         setIsAnalyzing(true);
+        setShowPreferences(false);
 
         // Simulate AI processing time
         setTimeout(() => {
-            const dummySuggestions: StyleSuggestion[] = [
-                {
-                    category: '👗 Dress Recommendations',
+            const suggestions: StyleSuggestion[] = [];
+
+            // Generate recommendations based on selected categories
+            if (prefs.categories.includes('dresses')) {
+                const brandText = prefs.brand ? ` from ${prefs.brand}` : '';
+                const occasionText = prefs.occasion ? ` for ${prefs.occasion}` : '';
+                const styleText = prefs.style ? ` in ${prefs.style} style` : '';
+
+                suggestions.push({
+                    category: `👗 Dress Recommendations${brandText}`,
                     items: [
-                        'Elegant Floral Maxi Dress - Perfect for your skin tone',
-                        'Classic Black Cocktail Dress - Timeless and sophisticated',
-                        'Casual Denim Dress - Great for everyday wear',
-                        'Bohemian Summer Dress - Matches your style vibe'
+                        `Elegant Floral Maxi Dress${occasionText} - Perfect for your skin tone`,
+                        `Classic Black Cocktail Dress - Timeless and sophisticated`,
+                        `${prefs.style || 'Casual'} Denim Dress - Great for everyday wear`,
+                        `Bohemian Summer Dress${styleText} - Matches your style vibe`
                     ],
-                    reasoning: 'Based on your complexion and facial features, these dresses will complement your natural beauty.'
-                },
-                {
-                    category: '💄 Makeup Suggestions',
+                    reasoning: `Based on your preferences${occasionText}${styleText}, these dresses will complement your natural beauty.`
+                });
+            }
+
+            if (prefs.categories.includes('makeup')) {
+                const brandText = prefs.brand ? ` (${prefs.brand} recommended)` : '';
+
+                suggestions.push({
+                    category: `💄 Makeup Suggestions${brandText}`,
                     items: [
                         'Warm Coral Lipstick - Enhances your natural glow',
                         'Soft Brown Eyeshadow Palette - Perfect for your eye color',
@@ -151,19 +181,43 @@ export const CameraStyleAdvisor: React.FC<{ onClose: () => void }> = ({ onClose 
                         'Natural Foundation (Medium Beige) - Matches your skin tone'
                     ],
                     reasoning: 'These makeup products are selected to enhance your natural features and skin undertones.'
-                },
-                {
-                    category: '👚 Top Recommendations',
+                });
+            }
+
+            if (prefs.categories.includes('accessories')) {
+                const occasionText = prefs.occasion ? ` for ${prefs.occasion}` : '';
+
+                suggestions.push({
+                    category: `👜 Accessory Recommendations${occasionText}`,
                     items: [
-                        'Silk Blouse in Emerald Green - Brings out your eyes',
-                        'White Cotton Button-Down - Classic and versatile',
-                        'Pastel Pink Sweater - Soft and flattering',
-                        'Navy Blue Blazer - Professional and chic'
+                        'Gold Statement Necklace - Adds elegance to any outfit',
+                        'Leather Crossbody Bag - Practical and stylish',
+                        'Classic Watch - Timeless accessory',
+                        'Silk Scarf - Versatile and chic'
                     ],
-                    reasoning: 'These colors and styles will work beautifully with your complexion and personal aesthetic.'
-                },
-                {
-                    category: '🎨 Color Palette',
+                    reasoning: `These accessories${occasionText} will complete your look beautifully.`
+                });
+            }
+
+            if (prefs.categories.includes('shoes')) {
+                const occasionText = prefs.occasion ? ` for ${prefs.occasion} occasions` : '';
+
+                suggestions.push({
+                    category: `👠 Shoe Recommendations${occasionText}`,
+                    items: [
+                        'Classic Black Pumps - Versatile and elegant',
+                        'White Sneakers - Comfortable and trendy',
+                        'Ankle Boots - Perfect for any season',
+                        'Strappy Sandals - Great for warm weather'
+                    ],
+                    reasoning: `These shoes${occasionText} will complement your style perfectly.`
+                });
+            }
+
+            // Add color palette if any category is selected
+            if (suggestions.length > 0) {
+                suggestions.push({
+                    category: '🎨 Personalized Color Palette',
                     items: [
                         'Jewel Tones (Emerald, Sapphire, Ruby)',
                         'Soft Pastels (Blush, Lavender, Mint)',
@@ -171,10 +225,10 @@ export const CameraStyleAdvisor: React.FC<{ onClose: () => void }> = ({ onClose 
                         'Classic Neutrals (Black, White, Navy)'
                     ],
                     reasoning: 'These color families complement your skin tone and will make you look radiant.'
-                }
-            ];
+                });
+            }
 
-            setSuggestions(dummySuggestions);
+            setSuggestions(suggestions);
             setIsAnalyzing(false);
         }, 2000);
     }, []);
@@ -183,6 +237,14 @@ export const CameraStyleAdvisor: React.FC<{ onClose: () => void }> = ({ onClose 
     const retakePhoto = useCallback(async () => {
         setCapturedImage(null);
         setSuggestions([]);
+        setShowPreferences(false);
+        setUserPreferences({
+            categories: [],
+            occasion: '',
+            brand: '',
+            style: '',
+            priceRange: ''
+        });
         // Get cameras again for selection
         await getCameras();
     }, [getCameras]);
@@ -292,7 +354,100 @@ export const CameraStyleAdvisor: React.FC<{ onClose: () => void }> = ({ onClose 
                                 <img src={capturedImage} alt="Captured" />
                             </div>
 
-                            {isAnalyzing ? (
+
+                            {showPreferences ? (
+                                <div className={styles.preferencesForm}>
+                                    <h3>🎯 What are you looking for?</h3>
+                                    <p className={styles.subtitle}>Select categories and preferences to get personalized recommendations</p>
+
+                                    {/* Category Selection */}
+                                    <div className={styles.formSection}>
+                                        <label>📦 Categories (select all that apply):</label>
+                                        <div className={styles.checkboxGroup}>
+                                            {['dresses', 'makeup', 'accessories', 'shoes'].map(cat => (
+                                                <label key={cat} className={styles.checkboxLabel}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={userPreferences.categories.includes(cat)}
+                                                        onChange={(e) => {
+                                                            const newCats = e.target.checked
+                                                                ? [...userPreferences.categories, cat]
+                                                                : userPreferences.categories.filter(c => c !== cat);
+                                                            setUserPreferences({ ...userPreferences, categories: newCats });
+                                                        }}
+                                                    />
+                                                    <span>{cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Occasion */}
+                                    <div className={styles.formSection}>
+                                        <label htmlFor="occasion">🎉 Occasion (optional):</label>
+                                        <select
+                                            id="occasion"
+                                            value={userPreferences.occasion}
+                                            onChange={(e) => setUserPreferences({ ...userPreferences, occasion: e.target.value })}
+                                            className={styles.selectInput}
+                                        >
+                                            <option value="">Any occasion</option>
+                                            <option value="casual">Casual</option>
+                                            <option value="formal">Formal</option>
+                                            <option value="party">Party</option>
+                                            <option value="work">Work/Office</option>
+                                            <option value="wedding">Wedding</option>
+                                            <option value="date">Date Night</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Brand Preference */}
+                                    <div className={styles.formSection}>
+                                        <label htmlFor="brand">🏷️ Preferred Brand (optional):</label>
+                                        <input
+                                            id="brand"
+                                            type="text"
+                                            placeholder="e.g., Zara, H&M, Sephora..."
+                                            value={userPreferences.brand}
+                                            onChange={(e) => setUserPreferences({ ...userPreferences, brand: e.target.value })}
+                                            className={styles.textInput}
+                                        />
+                                    </div>
+
+                                    {/* Style Preference */}
+                                    <div className={styles.formSection}>
+                                        <label htmlFor="style">✨ Style Preference (optional):</label>
+                                        <select
+                                            id="style"
+                                            value={userPreferences.style}
+                                            onChange={(e) => setUserPreferences({ ...userPreferences, style: e.target.value })}
+                                            className={styles.selectInput}
+                                        >
+                                            <option value="">Any style</option>
+                                            <option value="bohemian">Bohemian</option>
+                                            <option value="classic">Classic</option>
+                                            <option value="modern">Modern</option>
+                                            <option value="vintage">Vintage</option>
+                                            <option value="minimalist">Minimalist</option>
+                                            <option value="edgy">Edgy</option>
+                                        </select>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className={styles.preferenceActions}>
+                                        <button
+                                            className={styles.primaryBtn}
+                                            onClick={() => analyzeImage(userPreferences)}
+                                            disabled={userPreferences.categories.length === 0}
+                                        >
+                                            ✨ Get Recommendations
+                                        </button>
+                                        <button className={styles.secondaryBtn} onClick={retakePhoto}>
+                                            📸 Retake Photo
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : isAnalyzing ? (
                                 <div className={styles.analyzing}>
                                     <div className={styles.spinner}></div>
                                     <p>✨ Analyzing your style... Please wait</p>
