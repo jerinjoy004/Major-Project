@@ -1,5 +1,5 @@
 import type { Vector2D } from './types';
-import { STORE_WIDTH, STORE_HEIGHT, SHELVES, CHECKOUT_AREA } from './Store';
+import { SHELVES } from './Store';
 
 export class StoreRenderer {
     render(ctx: CanvasRenderingContext2D, camera: Vector2D): void {
@@ -123,6 +123,7 @@ export class StoreRenderer {
     }
 
     private renderCheckout(ctx: CanvasRenderingContext2D, camera: Vector2D): void {
+        const CHECKOUT_AREA = { x: 350, y: 720, width: 500, height: 120 };
         const screenX = CHECKOUT_AREA.x - camera.x;
         const screenY = CHECKOUT_AREA.y - camera.y;
 
@@ -168,6 +169,8 @@ export class StoreRenderer {
     }
 
     private renderBoundaries(ctx: CanvasRenderingContext2D, camera: Vector2D): void {
+        const STORE_WIDTH = 1200;
+        const STORE_HEIGHT = 900;
         const screenX = 0 - camera.x;
         const screenY = 0 - camera.y;
 

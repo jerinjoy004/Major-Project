@@ -5,7 +5,7 @@ import { PlayerAvatar } from './entities/PlayerAvatar';
 import { RemoteAvatar } from './entities/RemoteAvatar';
 import { NPCAvatar } from './entities/NPCAvatar';
 import { ProductEntity } from './entities/ProductEntity';
-import { SPAWN_POINT, isInCheckoutArea, STORE_WIDTH, STORE_HEIGHT } from './Store';
+import { SPAWN_POINT, isInCheckoutArea, STORE_WIDTH, STORE_HEIGHT, getStoreConfig } from './Store';
 import { useGameStore } from '../store/gameStore';
 import type { Database } from '../supabase/types';
 
@@ -57,7 +57,6 @@ export class GameEngine {
 
     private spawnNPCs(): void {
         const npcNames = ['Alex', 'Sam', 'Jordan', 'Taylor', 'Casey'];
-        const colors = ['#fbbf24', '#f59e0b', '#fb923c', '#fdba74', '#fcd34d'];
 
         for (let i = 0; i < 5; i++) {
             const x = Math.random() * (STORE_WIDTH - 200) + 100;

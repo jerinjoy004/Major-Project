@@ -39,7 +39,7 @@ export const LoginPage: React.FC = () => {
 
                 if (profileError) throw profileError;
 
-                navigate('/store');
+                navigate('/mall');
             } else {
                 // Sign in
                 const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -49,7 +49,7 @@ export const LoginPage: React.FC = () => {
 
                 if (signInError) throw signInError;
 
-                navigate('/store');
+                navigate('/mall');
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred');

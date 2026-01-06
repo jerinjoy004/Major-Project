@@ -44,20 +44,54 @@ export const CHECKOUT_AREA: Bounds = {
     height: 120,
 };
 
+// Store configuration interface for future multi-store support
+export interface StoreConfig {
+    id: string;
+    name: string;
+    width: number;
+    height: number;
+    spawnPoint: Vector2D;
+    shelves: Bounds[];
+    checkoutArea: Bounds;
+    backgroundColor: string;
+    floorColor: string;
+}
+
+// Default store config (H&M style for all stores for now)
+const DEFAULT_STORE_CONFIG: StoreConfig = {
+    id: 'default',
+    name: 'Store',
+    width: STORE_WIDTH,
+    height: STORE_HEIGHT,
+    spawnPoint: SPAWN_POINT,
+    shelves: SHELVES,
+    checkoutArea: CHECKOUT_AREA,
+    backgroundColor: '#FFE5E5',
+    floorColor: '#FFF0F0'
+};
+
+// Get store config - for now all stores use the same layout
+export function getStoreConfig(storeId: string): StoreConfig {
+    // Return default config for all stores to maintain compatibility
+    return DEFAULT_STORE_CONFIG;
+}
+
 // Check if position is walkable (not inside shelves or checkout)
-export function isWalkable(position: Vector2D, bounds: Bounds): boolean {
+export function isWalkable(position: Vector2D, bounds: Bounds, config?: StoreConfig): boolean {
+    const storeConfig = config || DEFAULT_STORE_CONFIG;
+
     // Check store bounds
     if (
         position.x < 0 ||
         position.y < 0 ||
-        position.x + bounds.width > STORE_WIDTH ||
-        position.y + bounds.height > STORE_HEIGHT
+        position.x + bounds.width > storeConfig.width ||
+        position.y + bounds.height > storeConfig.height
     ) {
         return false;
     }
 
     // Check shelves
-    for (const shelf of SHELVES) {
+    for (const shelf of storeConfig.shelves) {
         if (
             position.x + bounds.width > shelf.x &&
             position.x < shelf.x + shelf.width &&
@@ -72,11 +106,12 @@ export function isWalkable(position: Vector2D, bounds: Bounds): boolean {
 }
 
 // Check if position is in checkout area
-export function isInCheckoutArea(position: Vector2D): boolean {
+export function isInCheckoutArea(position: Vector2D, config?: StoreConfig): boolean {
+    const checkoutArea = config ? config.checkoutArea : CHECKOUT_AREA;
     return (
-        position.x >= CHECKOUT_AREA.x &&
-        position.x <= CHECKOUT_AREA.x + CHECKOUT_AREA.width &&
-        position.y >= CHECKOUT_AREA.y &&
-        position.y <= CHECKOUT_AREA.y + CHECKOUT_AREA.height
+        position.x >= checkoutArea.x &&
+        position.x <= checkoutArea.x + checkoutArea.width &&
+        position.y >= checkoutArea.y &&
+        position.y <= checkoutArea.y + checkoutArea.height
     );
 }

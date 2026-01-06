@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { GameEngine } from '../lib/game/GameEngine';
 import { PresenceManager } from '../lib/realtime/PresenceManager';
 import { ChatManager } from '../lib/realtime/ChatManager';
@@ -20,6 +20,7 @@ import { Minimap } from '@/components/Minimap';
 import { NotificationSystem } from '@/components/NotificationSystem';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { PerformanceMonitor } from '@/components/PerformanceMonitor';
+import { CameraStyleAdvisor } from '../components/CameraStyleAdvisor';
 import styles from './StorePage.module.css';
 
 interface CameraState {
@@ -30,6 +31,45 @@ interface CameraState {
     y: number;
 }
 
+interface StoreTheme {
+    name: string;
+    gradient: string;
+    accentColor: string;
+}
+
+const STORE_THEMES: Record<string, StoreTheme> = {
+    'hm': {
+        name: 'H&M',
+        gradient: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',
+        accentColor: '#FF6B6B'
+    },
+    'lulu': {
+        name: 'LULU Hypermarket',
+        gradient: 'linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%)',
+        accentColor: '#4ECDC4'
+    },
+    'zara': {
+        name: 'ZARA',
+        gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        accentColor: '#667eea'
+    },
+    'sephora': {
+        name: 'Sephora',
+        gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        accentColor: '#f093fb'
+    },
+    'nike': {
+        name: 'Nike Store',
+        gradient: 'linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 90%, #2BFF88 100%)',
+        accentColor: '#FA8BFF'
+    },
+    'ikea': {
+        name: 'IKEA',
+        gradient: 'linear-gradient(135deg, #FEC163 0%, #DE4313 100%)',
+        accentColor: '#FEC163'
+    }
+};
+
 export const StorePage: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const gameEngineRef = useRef<GameEngine | null>(null);
@@ -39,6 +79,9 @@ export const StorePage: React.FC = () => {
 
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { storeId } = useParams<{ storeId: string }>();
+    const storeTheme = STORE_THEMES[storeId || 'hm'] || STORE_THEMES['hm'];
+
     const [loading, setLoading] = useState(true);
     const [loadingProgress, setLoadingProgress] = useState(0);
     const [cameraState, setCameraState] = useState<CameraState>({
@@ -54,6 +97,7 @@ export const StorePage: React.FC = () => {
     const [notifications, setNotifications] = useState<Array<{ id: string; message: string; type: 'info' | 'success' | 'warning' | 'error' }>>([]);
     const [selectedPlayer, setSelectedPlayer] = useState<{ user_id: string; username: string } | null>(null);
     const [showCustomization, setShowCustomization] = useState(false);
+    const [showStyleAdvisor, setShowStyleAdvisor] = useState(false);
     const [avatarCustomization, setAvatarCustomization] = useState<AvatarCustomizationType>({
         bodyColor: '#4A90E2',
         skinTone: '#FFD1A3',
@@ -371,6 +415,21 @@ export const StorePage: React.FC = () => {
         <div className={styles.container}>
             <canvas ref={canvasRef} className={styles.canvas} />
 
+            {/* Back to Mall Button */}
+            <button
+                className={styles.backToMallBtn}
+                onClick={() => navigate('/mall')}
+                title="Back to Mall"
+            >
+                ← Back to Mall
+            </button>
+
+            {/* Store Name Badge */}
+            <div className={styles.storeBadge} style={{ background: storeTheme.gradient }}>
+                <span className={styles.storeIcon}>🏪</span>
+                <span className={styles.storeName}>{storeTheme.name}</span>
+            </div>
+
             {/* Core UI Components */}
             <HUD />
 
@@ -457,6 +516,17 @@ export const StorePage: React.FC = () => {
                 >
                     🎨
                 </button>
+                <button
+                    className={styles.quickActionBtn}
+                    onClick={() => {
+                        console.log('📸 Camera button clicked, opening Style Advisor');
+                        setShowStyleAdvisor(true);
+                    }}
+                    title="AI Style Advisor - Camera"
+                    style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}
+                >
+                    📸
+                </button>
             </div>
 
             {/* Player Interaction Modal */}
@@ -484,6 +554,11 @@ export const StorePage: React.FC = () => {
                     }}
                     onClose={() => setShowCustomization(false)}
                 />
+            )}
+
+            {/* Camera Style Advisor */}
+            {showStyleAdvisor && (
+                <CameraStyleAdvisor onClose={() => setShowStyleAdvisor(false)} />
             )}
         </div>
     );

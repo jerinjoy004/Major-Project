@@ -1,5 +1,6 @@
 import type { Vector2D } from '../types';
 import type { Database } from '../../supabase/types';
+import { getStoreConfig } from '../Store';
 
 type Product = Database['public']['Tables']['products']['Row'];
 
@@ -19,6 +20,40 @@ export class ProductEntity {
             x: product.position_x,
             y: product.position_y,
         };
+    }
+
+    private autoPosition(product: Product, storeId: string): Vector2D {
+        const storeConfig = getStoreConfig(storeId);
+        const shelves = storeConfig.shelves;
+
+        if (shelves.length === 0) {
+            return { x: 200, y: 200 };
+        }
+
+        // Use product ID hash to determine shelf (distribute evenly)
+        const productIdNum = product.id ?
+            (typeof product.id === 'string' ?
+                product.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) :
+                parseInt(product.id.toString()))
+            : Math.floor(Math.random() * 1000);
+
+        const shelfIndex = productIdNum % shelves.length;
+        const shelf = shelves[shelfIndex];
+
+        // Position within the shelf (3 products per shelf row)
+        const positionInShelf = Math.floor(productIdNum / shelves.length) % 3;
+        const spacing = (shelf.width - this.width * 3) / 4; // Equal spacing
+        const xOffset = spacing + (positionInShelf * (this.width + spacing));
+        const yOffset = shelf.height / 2 - this.height / 2;
+
+        const finalPos = {
+            x: shelf.x + xOffset,
+            y: shelf.y + yOffset
+        };
+
+        console.log(`Positioned ${product.name} at shelf ${shelfIndex}, position ${positionInShelf}:`, finalPos);
+
+        return finalPos;
     }
 
     checkProximity(playerPosition: Vector2D): boolean {

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './lib/auth/AuthProvider';
 import { LoginPage } from './pages/LoginPage';
+import { MallPage } from './pages/MallPage';
 import { StorePage } from './pages/StorePage';
 import './App.css';
 
@@ -27,14 +28,22 @@ function App() {
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
                     <Route
-                        path="/store"
+                        path="/mall"
+                        element={
+                            <ProtectedRoute>
+                                <MallPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/store/:storeId"
                         element={
                             <ProtectedRoute>
                                 <StorePage />
                             </ProtectedRoute>
                         }
                     />
-                    <Route path="/" element={<Navigate to="/store" />} />
+                    <Route path="/" element={<Navigate to="/mall" />} />
                 </Routes>
             </BrowserRouter>
         </AuthProvider>
